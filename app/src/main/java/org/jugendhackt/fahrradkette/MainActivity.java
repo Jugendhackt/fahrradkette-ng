@@ -18,6 +18,11 @@ import android.view.MenuItem;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.DelayedMapListener;
+import org.osmdroid.events.MapAdapter;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -53,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
        initMap();
+
+       map.setMapListener(new DelayedMapListener(new BikeMapAdapter(map), 200));
     }
 
     private void initMap() {

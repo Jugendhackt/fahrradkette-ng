@@ -1,19 +1,14 @@
-package org.jugendhackt.fahrradkette;
+package org.jugendhackt.fahrradkette.view.adapter;
 
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
-import android.widget.Toast;
 
+import org.jugendhackt.fahrradkette.model.Bike;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.events.MapAdapter;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint;
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay;
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions;
@@ -24,14 +19,13 @@ import java.util.List;
 
 public class BikeMapAdapter extends MapAdapter {
 
-    private BikeDataProvider bikeDataProvider;
+    private List<IGeoPoint> pointsCache = new ArrayList<>();
     private MapView map;
 
     public BikeMapAdapter(MapView map) {
         this.map = map;
-        bikeDataProvider = new BikeDataProvider();
 
-        SimplePointTheme pt = new SimplePointTheme(bikeDataProvider.getPointsCache(), true);
+        SimplePointTheme pt = new SimplePointTheme(pointsCache, true);
 
         Paint textStyle = new Paint();
         textStyle.setStyle(Paint.Style.FILL);
@@ -58,6 +52,13 @@ public class BikeMapAdapter extends MapAdapter {
         map.getOverlays().add(sfpo);
     }
 
+    public void setBikes(List<Bike> bikes) {
+        pointsCache.clear();
+        for (Bike bike : bikes) {
+            pointsCache.add(new LabelledGeoPoint(bike.latitude, bike.longitude, bike.notes));
+        }
+    }
+
     @Override
     public boolean onScroll(ScrollEvent event) {
         onUpdateViewPort();
@@ -73,10 +74,12 @@ public class BikeMapAdapter extends MapAdapter {
     }
 
     private void onUpdateViewPort() {
+        /*
         bikeDataProvider.onUpdateViewPort(
                 map.getBoundingBox().getLatNorth(),
                 map.getBoundingBox().getLonWest(),
                 map.getBoundingBox().getLatSouth(),
                 map.getBoundingBox().getLonEast());
+                */
     }
 }

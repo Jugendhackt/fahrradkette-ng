@@ -1,7 +1,6 @@
-package org.jugendhackt.fahrradkette;
+package org.jugendhackt.fahrradkette.view.ui;
 
 import android.content.Context;
-import android.graphics.Paint;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -9,31 +8,34 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.jugendhackt.fahrradkette.model.Bike;
+import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
+import org.jugendhackt.fahrradkette.R;
+import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.DelayedMapListener;
-import org.osmdroid.events.MapAdapter;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
-import org.osmdroid.views.overlay.compass.CompassOverlay;
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    MapView map = null;
+    private MapView map = null;
+    private BikeMapAdapter bikeMapAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,23 @@ public class MainActivity extends AppCompatActivity {
 
        initMap();
 
-       map.setMapListener(new DelayedMapListener(new BikeMapAdapter(map), 200));
+       final MapViewModel viewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+
+       observeViewModel(viewModel);
+
+       bikeMapAdapter = new BikeMapAdapter(map);
+       map.setMapListener(new DelayedMapListener(bikeMapAdapter, 200));
+    }
+
+    private void observeViewModel(MapViewModel viewModel) {
+        viewModel.getMapBikesObservable().observe(this, new Observer<List<Bike>>() {
+            @Override
+            public void onChanged(List<Bike> bikes) {
+                if (bikeMapAdapter != null) {
+                    bikeMapAdapter.setBikes(bikes);
+                }
+            }
+        });
     }
 
     private void initMap() {

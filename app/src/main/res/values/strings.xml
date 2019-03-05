@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Fahrradkette</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_new_bike">new Bike</string>
+    <string name="newBike_name">name</string>
+    <string name="newBike_notes" >Notes</string>
 </resources>

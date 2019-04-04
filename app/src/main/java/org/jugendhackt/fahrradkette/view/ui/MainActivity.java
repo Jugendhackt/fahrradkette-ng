@@ -1,10 +1,15 @@
 package org.jugendhackt.fahrradkette.view.ui;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.mapzen.android.graphics.MapFragment;
+import com.mapzen.android.graphics.MapView;
+import com.mapzen.android.graphics.MapzenMap;
+import com.mapzen.android.graphics.OnMapReadyCallback;
+import com.mapzen.android.graphics.model.BubbleWrapStyle;
+import com.mapzen.tangram.SceneUpdate;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -20,32 +25,18 @@ import android.view.MenuItem;
 
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
-import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
 import org.jugendhackt.fahrradkette.R;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
-import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.events.DelayedMapListener;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.CustomZoomButtonsController;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ScaleBarOverlay;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MapView map = null;
-    private BikeMapAdapter bikeMapAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // load/initialize the osmdroid configuration
-        Context ctx = getApplicationContext();
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
         setContentView(R.layout.activity_main);
 
@@ -61,14 +52,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-       initMap();
 
-       final MapViewModel viewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(MapzenMap map) {
+                List<SceneUpdate> updates = new ArrayList<>();
+                updates.add(new SceneUpdate("global.sdk_api_key", getString(R.string.mapzen_api_key)));
 
-       observeViewModel(viewModel);
+                map.getMapController().loadSceneFileAsync("bubble-wrap/bubble-wrap-style.yaml", updates);
+                map.setMyLocationEnabled(true);
+            }
+        });
 
-       bikeMapAdapter = new BikeMapAdapter(map, viewModel);
-       map.setMapListener(new DelayedMapListener(bikeMapAdapter, 200));
+        initMap();
+
+        final MapViewModel viewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+
+        observeViewModel(viewModel);
+
+        //bikeMapAdapter = new BikeMapAdapter(map, viewModel);
+        //map.setMapListener(new DelayedMapListener(bikeMapAdapter, 200));
     }
 
     private void observeViewModel(MapViewModel viewModel) {
@@ -76,29 +79,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Bike> bikes) {
                 Log.d(Fahrradkette.TAG, "OnChanged");
-                if (bikeMapAdapter != null) {
-                    bikeMapAdapter.setBikes(bikes);
-                }
+                //if (bikeMapAdapter != null) {
+                //    bikeMapAdapter.setBikes(bikes);
+                //}
             }
         });
     }
 
     private void initMap() {
-        map = findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.OpenTopo);
-        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
-        map.setMultiTouchControls(true);
-        map.setTilesScaledToDpi(true);
 
-        ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map);
-        mScaleBarOverlay.setAlignBottom(true);
-        map.getOverlays().add(mScaleBarOverlay);
-
-        // some testing viewport
-        IMapController mapController = map.getController();
-        mapController.setZoom(15.0);
-        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
-        mapController.setCenter(startPoint);
     }
 
     @Override
@@ -126,12 +115,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        map.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        map.onPause();
     }
 }

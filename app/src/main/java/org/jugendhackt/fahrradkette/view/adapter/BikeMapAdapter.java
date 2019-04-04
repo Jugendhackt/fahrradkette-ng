@@ -7,19 +7,10 @@ import android.util.Log;
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.events.MapAdapter;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint;
-import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay;
-import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions;
-import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/*
 public class BikeMapAdapter extends MapAdapter {
 
     private List<IGeoPoint> pointsCache = new ArrayList<>();
@@ -89,3 +80,4 @@ public class BikeMapAdapter extends MapAdapter {
                 map.getBoundingBox().getLonEast());
     }
 }
+*/

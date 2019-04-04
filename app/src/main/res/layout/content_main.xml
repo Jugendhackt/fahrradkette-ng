@@ -8,8 +8,9 @@
     tools:context=".view.ui.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <org.osmdroid.views.MapView
-        android:id="@+id/map"
+    <fragment
+        android:id="@+id/map_fragment"
+        android:name="com.mapzen.android.graphics.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

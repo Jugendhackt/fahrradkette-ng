@@ -13,10 +13,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
 import org.jugendhackt.fahrradkette.R;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
        observeViewModel(viewModel);
 
-       bikeMapAdapter = new BikeMapAdapter(map);
+       bikeMapAdapter = new BikeMapAdapter(map, viewModel);
        map.setMapListener(new DelayedMapListener(bikeMapAdapter, 200));
     }
 
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getMapBikesObservable().observe(this, new Observer<List<Bike>>() {
             @Override
             public void onChanged(List<Bike> bikes) {
+                Log.d(Fahrradkette.TAG, "OnChanged");
                 if (bikeMapAdapter != null) {
                     bikeMapAdapter.setBikes(bikes);
                 }
@@ -82,9 +85,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initMap() {
         map = findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.HIKEBIKEMAP);
+        map.setTileSource(TileSourceFactory.OpenTopo);
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
         map.setMultiTouchControls(true);
+        map.setTilesScaledToDpi(true);
 
         ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map);
         mScaleBarOverlay.setAlignBottom(true);

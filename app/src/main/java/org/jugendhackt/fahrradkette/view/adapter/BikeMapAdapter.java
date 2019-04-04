@@ -2,8 +2,11 @@ package org.jugendhackt.fahrradkette.view.adapter;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
+import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
+import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.events.MapAdapter;
 import org.osmdroid.events.ScrollEvent;
@@ -21,9 +24,11 @@ public class BikeMapAdapter extends MapAdapter {
 
     private List<IGeoPoint> pointsCache = new ArrayList<>();
     private MapView map;
+    private MapViewModel viewModel;
 
-    public BikeMapAdapter(MapView map) {
+    public BikeMapAdapter(MapView map, MapViewModel viewModel) {
         this.map = map;
+        this.viewModel = viewModel;
 
         SimplePointTheme pt = new SimplePointTheme(pointsCache, true);
 
@@ -39,7 +44,6 @@ public class BikeMapAdapter extends MapAdapter {
 
         final SimpleFastPointOverlay sfpo = new SimpleFastPointOverlay(pt, opt);
 
-
 // onClick callback
         sfpo.setOnClickListener(new SimpleFastPointOverlay.OnClickListener() {
             @Override
@@ -53,10 +57,14 @@ public class BikeMapAdapter extends MapAdapter {
     }
 
     public void setBikes(List<Bike> bikes) {
-        pointsCache.clear();
+        //pointsCache.clear();
+        Log.d(Fahrradkette.TAG, "Reload bikes");
         for (Bike bike : bikes) {
-            pointsCache.add(new LabelledGeoPoint(bike.latitude, bike.longitude, bike.notes));
+            LabelledGeoPoint lgp = new LabelledGeoPoint(bike.latitude, bike.longitude, bike.notes);
+            pointsCache.add(lgp);
         }
+        Log.d(Fahrradkette.TAG, String.format("%d", pointsCache.size()));
+       // map.invalidate();
     }
 
     @Override
@@ -74,12 +82,10 @@ public class BikeMapAdapter extends MapAdapter {
     }
 
     private void onUpdateViewPort() {
-        /*
-        bikeDataProvider.onUpdateViewPort(
+        viewModel.loadBikes(
                 map.getBoundingBox().getLatNorth(),
                 map.getBoundingBox().getLonWest(),
                 map.getBoundingBox().getLatSouth(),
                 map.getBoundingBox().getLonEast());
-                */
     }
 }

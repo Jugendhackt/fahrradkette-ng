@@ -1,0 +1,3 @@
+[submodule "app/mapstyles/bubble-wrap"]
+	path = app/mapstyles/bubble-wrap
+	url = git@github.com:tangrams/bubble-wrap.git

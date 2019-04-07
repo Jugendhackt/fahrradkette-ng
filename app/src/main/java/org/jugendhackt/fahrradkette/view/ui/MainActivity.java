@@ -1,23 +1,29 @@
 package org.jugendhackt.fahrradkette.view.ui;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapzen.android.graphics.MapFragment;
-import com.mapzen.android.graphics.MapView;
 import com.mapzen.android.graphics.MapzenMap;
 import com.mapzen.android.graphics.OnMapReadyCallback;
-import com.mapzen.android.graphics.model.BubbleWrapStyle;
+import com.mapzen.android.graphics.model.BitmapMarker;
+import com.mapzen.android.graphics.model.BitmapMarkerFactory;
+import com.mapzen.android.graphics.model.BitmapMarkerOptions;
+import com.mapzen.android.graphics.model.MapStyle;
+import com.mapzen.android.graphics.model.Marker;
 import com.mapzen.tangram.SceneUpdate;
+import com.mapzen.tangram.TouchInput;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -26,13 +32,19 @@ import android.view.MenuItem;
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.R;
+import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private MapzenMap map;
+    private BikeMapAdapter bikeMapAdapter;
+    private MapViewModel mapViewModel;
+    private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private boolean hasDeniedLocationPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +66,52 @@ public class MainActivity extends AppCompatActivity {
 
 
         MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override public void onMapReady(MapzenMap map) {
-                List<SceneUpdate> updates = new ArrayList<>();
-                updates.add(new SceneUpdate("global.sdk_api_key", getString(R.string.mapzen_api_key)));
+        mapFragment.getMapAsync(new MapStyle("bubble-wrap/bubble-wrap-style.yaml"), this);
 
-                map.getMapController().loadSceneFileAsync("bubble-wrap/bubble-wrap-style.yaml", updates);
-                map.setMyLocationEnabled(true);
+
+
+        mapViewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+
+        observeViewModel(mapViewModel);
+    }
+
+    private boolean isLocationPermissionGranted() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) && !hasDeniedLocationPermission) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
-        });
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 
-        initMap();
+    private void enableLocation(boolean enable) {
+        map.setMyLocationEnabled(enable);
+        if(enable) {
+            //center map
 
-        final MapViewModel viewModel = ViewModelProviders.of(this).get(MapViewModel.class);
+        }
+    }
 
-        observeViewModel(viewModel);
+    @Override public void onMapReady(MapzenMap map) {
+        this.map = map;
+        List<SceneUpdate> updates = new ArrayList<>();
+        updates.add(new SceneUpdate("global.sdk_api_key", getString(R.string.mapzen_api_key)));
+        //map.getMapController().loadSceneFileAsync("bubble-wrap/bubble-wrap-style.yaml", updates);
+        map.getMapController().updateSceneAsync(updates);
 
-        //bikeMapAdapter = new BikeMapAdapter(map, viewModel);
-        //map.setMapListener(new DelayedMapListener(bikeMapAdapter, 200));
+        enableLocation(isLocationPermissionGranted());
+
+        //map.addMarker(new Marker(11, 52));
+        //Marker m = new Marker(34, 34);
+        //bikeMapAdapter = new BikeMapAdapter(map, mapViewModel);
+        //map.setPanResponder(bikeMapAdapter);
     }
 
     private void observeViewModel(MapViewModel viewModel) {
@@ -86,8 +126,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initMap() {
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    map.setMyLocationEnabled(true);
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    // map.setMyLocationEnabled(false);
+                    hasDeniedLocationPermission = true;
+                }
+                return;
+            }
+        }
     }
 
     @Override
@@ -115,10 +171,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(map != null) {
+            enableLocation(isLocationPermissionGranted());
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if(map != null) {
+            enableLocation(false);
+        }
     }
 }

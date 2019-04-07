@@ -1,60 +1,81 @@
 package org.jugendhackt.fahrradkette.view.adapter;
 
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.PointF;
 import android.util.Log;
 
-import com.mapzen.android.graphics.MapzenMap;
-import com.mapzen.tangram.TouchInput;
+import com.mapzen.tangram.LngLat;
+import com.mapzen.tangram.MapChangeListener;
+import com.mapzen.tangram.MapController;
+import com.mapzen.tangram.Marker;
 
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class BikeMapAdapter implements TouchInput.PanResponder {
+
+public class BikeMapAdapter implements MapChangeListener {
 
     private MapViewModel viewModel;
-    private MapzenMap map;
+    private MapController map;
+    private HashMap<Integer, Marker> bikeCache;
+    String pointStyle = "{ style: 'points', color: 'green', size: [5px, 5px], order: 2000, collide: false }"; //move to values xml
 
-    public BikeMapAdapter(MapzenMap map, MapViewModel viewModel) {
+    public BikeMapAdapter(MapController map, MapViewModel viewModel) {
         this.map = map;
         this.viewModel = viewModel;
-
-
+        bikeCache = new HashMap<>();
     }
 
     public void setBikes(List<Bike> bikes) {
-        //pointsCache.clear();
         Log.d(Fahrradkette.TAG, "Reload bikes");
+
         for (Bike bike : bikes) {
-            //LabelledGeoPoint lgp = new LabelledGeoPoint(bike.latitude, bike.longitude, bike.notes);
-            //pointsCache.add(lgp);
+            if(!bikeCache.containsKey(bike.id)) {
+                Marker bikeMarker = map.addMarker();
+                bikeMarker.setPoint(new LngLat(bike.longitude, bike.latitude));
+                bikeMarker.setStylingFromString(pointStyle);
+                //pointMarker.setDrawable(R.drawable.mapzen_logo);
+
+                bikeCache.put(bike.id, bikeMarker);
+            }
         }
-        //Log.d(Fahrradkette.TAG, String.format("%d", pointsCache.size()));
-       // map.invalidate();
+        Log.d(Fahrradkette.TAG, String.format("%d", bikeCache.size()));
     }
 
 
 
     private void onUpdateViewPort() {
-        //viewModel.loadBikes(
-                //map.getBoundingBox().getLatNorth(),
-                //map.getBoundingBox().getLonWest(),
-                //map.getBoundingBox().getLatSouth(),
-                //map.getBoundingBox().getLonEast());
+        LngLat topleft = map.screenPositionToLngLat(new PointF(0, 0));
+        LngLat bottomright = map.screenPositionToLngLat(
+                new PointF(map.getGLViewHolder().getView().getWidth(), map.getGLViewHolder().getView().getHeight()));
+
+        viewModel.loadBikes(
+                topleft.latitude,
+                topleft.longitude,
+                bottomright.latitude,
+                bottomright.longitude);
     }
 
     @Override
-    public boolean onPan(float startX, float startY, float endX, float endY) {
-        return false;
+    public void onViewComplete() {
+
     }
 
     @Override
-    public boolean onFling(float posX, float posY, float velocityX, float velocityY) {
-        Log.d(Fahrradkette.TAG, String.format("%d - %d", posX, posY));
-        return false;
+    public void onRegionWillChange(boolean animated) {
+
+    }
+
+    @Override
+    public void onRegionIsChanging() {
+
+    }
+
+    @Override
+    public void onRegionDidChange(boolean animated) {
+        onUpdateViewPort();
     }
 }

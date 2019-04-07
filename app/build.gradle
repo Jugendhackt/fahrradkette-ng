@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "org.jugendhackt.fahrradkette"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -30,8 +30,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.2-alpha02'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-alpha02'
 
-    api 'com.mapzen:mapzen-android-sdk:1.6.1'
-    api 'com.google.guava:guava:27.0.1-android'
+    implementation 'com.mapzen.tangram:tangram:0.10.1'
+    // api 'com.google.guava:guava:27.0.1-android'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.google.code.gson:gson:2.8.5'

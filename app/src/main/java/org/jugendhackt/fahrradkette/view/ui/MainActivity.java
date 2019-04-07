@@ -3,20 +3,27 @@ package org.jugendhackt.fahrradkette.view.ui;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.mapzen.android.graphics.MapFragment;
-import com.mapzen.android.graphics.MapzenMap;
-import com.mapzen.android.graphics.OnMapReadyCallback;
-import com.mapzen.android.graphics.model.BitmapMarker;
-import com.mapzen.android.graphics.model.BitmapMarkerFactory;
-import com.mapzen.android.graphics.model.BitmapMarkerOptions;
-import com.mapzen.android.graphics.model.MapStyle;
-import com.mapzen.android.graphics.model.Marker;
+import com.mapzen.tangram.MapController;
+import com.mapzen.tangram.MapView;
 import com.mapzen.tangram.SceneUpdate;
-import com.mapzen.tangram.TouchInput;
 
+import org.jugendhackt.fahrradkette.Fahrradkette;
+import org.jugendhackt.fahrradkette.R;
+import org.jugendhackt.fahrradkette.model.Bike;
+import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
+import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -24,23 +31,10 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.util.Log;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+public class MainActivity extends AppCompatActivity implements MapView.MapReadyCallback {
 
-import org.jugendhackt.fahrradkette.Fahrradkette;
-import org.jugendhackt.fahrradkette.model.Bike;
-import org.jugendhackt.fahrradkette.R;
-import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
-import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
-
-    private MapzenMap map;
+    private MapView mapView;
+    private MapController map;
     private BikeMapAdapter bikeMapAdapter;
     private MapViewModel mapViewModel;
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -65,10 +59,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.getMapAsync(new MapStyle("bubble-wrap/bubble-wrap-style.yaml"), this);
-
-
+        mapView = findViewById(R.id.map);
+        mapView.getMapAsync(this);
 
         mapViewModel = ViewModelProviders.of(this).get(MapViewModel.class);
 
@@ -92,26 +84,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void enableLocation(boolean enable) {
-        map.setMyLocationEnabled(enable);
+        //map.setMyLocationEnabled(enable);
         if(enable) {
             //center map
 
         }
-    }
-
-    @Override public void onMapReady(MapzenMap map) {
-        this.map = map;
-        List<SceneUpdate> updates = new ArrayList<>();
-        updates.add(new SceneUpdate("global.sdk_api_key", getString(R.string.mapzen_api_key)));
-        //map.getMapController().loadSceneFileAsync("bubble-wrap/bubble-wrap-style.yaml", updates);
-        map.getMapController().updateSceneAsync(updates);
-
-        enableLocation(isLocationPermissionGranted());
-
-        //map.addMarker(new Marker(11, 52));
-        //Marker m = new Marker(34, 34);
-        //bikeMapAdapter = new BikeMapAdapter(map, mapViewModel);
-        //map.setPanResponder(bikeMapAdapter);
     }
 
     private void observeViewModel(MapViewModel viewModel) {
@@ -119,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onChanged(List<Bike> bikes) {
                 Log.d(Fahrradkette.TAG, "OnChanged");
-                //if (bikeMapAdapter != null) {
-                //    bikeMapAdapter.setBikes(bikes);
-                //}
+                if (bikeMapAdapter != null) {
+                    bikeMapAdapter.setBikes(bikes);
+                }
             }
         });
     }
@@ -134,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
-                    map.setMyLocationEnabled(true);
+                    //map.setMyLocationEnabled(true);
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -171,16 +148,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
-        if(map != null) {
+        mapView.onResume();
+        /*if(map != null) {
             enableLocation(isLocationPermissionGranted());
-        }
+        }*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        mapView.onPause();
+        /*
         if(map != null) {
             enableLocation(false);
-        }
+        }*/
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onMapReady(@Nullable MapController mapController) {
+        this.map = mapController;
+        List<SceneUpdate> updates = new ArrayList<>();
+        updates.add(new SceneUpdate("global.sdk_api_key", getString(R.string.mapzen_api_key)));
+        mapController.loadSceneFileAsync("bubble-wrap/bubble-wrap-style.yaml", updates);
+        enableLocation(isLocationPermissionGranted());
+
+        bikeMapAdapter = new BikeMapAdapter(map, mapViewModel);
+        map.setMapChangeListener(bikeMapAdapter);
     }
 }

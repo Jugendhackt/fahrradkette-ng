@@ -45,8 +45,10 @@ public class BikeRepository {
             @Override
             public void onResponse(Call<List<Bike>> call, Response<List<Bike>> response) {
                 //data.setValue(response.body());
-                observable.setValue(response.body());
-                Log.d(Fahrradkette.TAG, response.body().toString());
+                if(response.body() != null) {
+                    observable.setValue(response.body());
+                    Log.d(Fahrradkette.TAG, response.body().toString());
+                }
             }
 
             @Override

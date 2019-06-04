@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        isLocationPermissionGranted();
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

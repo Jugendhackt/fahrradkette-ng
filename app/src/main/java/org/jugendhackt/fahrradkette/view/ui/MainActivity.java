@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapzen.tangram.MapController;
@@ -34,6 +35,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+
 public class MainActivity extends AppCompatActivity implements MapView.MapReadyCallback {
 
     private MapView mapView;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
     private MapViewModel mapViewModel;
     private final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean hasDeniedLocationPermission = false;
+    private MarkerBottomSheet markerBottomSheet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
             }
         });
 
+        markerBottomSheet = new MarkerBottomSheet(findViewById(R.id.bottom_sheet_constraint));
 
         mapView = findViewById(R.id.map);
         mapView.getMapAsync(this);
@@ -189,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
 
         bikeMapAdapter = new BikeMapAdapter(map, mapViewModel);
         map.setMapChangeListener(bikeMapAdapter);
-        map.setMarkerPickListener(bikeMapAdapter);
+        map.setMarkerPickListener(markerBottomSheet);
         map.getTouchInput().setTapResponder(new TouchInput.TapResponder() {
             @Override
             public boolean onSingleTapUp(float x, float y) {

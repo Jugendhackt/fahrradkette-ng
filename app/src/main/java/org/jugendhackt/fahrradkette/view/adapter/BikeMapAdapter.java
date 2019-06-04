@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class BikeMapAdapter implements MapChangeListener, MarkerPickListener {
+public class BikeMapAdapter implements MapChangeListener {
 
     private MapViewModel viewModel;
     private MapController map;
@@ -40,14 +40,13 @@ public class BikeMapAdapter implements MapChangeListener, MarkerPickListener {
                 Marker bikeMarker = map.addMarker();
                 bikeMarker.setPoint(new LngLat(bike.longitude, bike.latitude));
                 bikeMarker.setStylingFromString(pointStyle);
+                bikeMarker.setUserData(bike);
                 Log.d(Fahrradkette.TAG, String.valueOf(bikeMarker.setDrawable(R.drawable.ic_bike)));
                 bikeCache.put(bike.id, bikeMarker);
             }
         }
         Log.d(Fahrradkette.TAG, String.format("%d", bikeCache.size()));
     }
-
-
 
     private void onUpdateViewPort() {
         LngLat topleft = map.screenPositionToLngLat(new PointF(0, 0));
@@ -79,12 +78,5 @@ public class BikeMapAdapter implements MapChangeListener, MarkerPickListener {
     @Override
     public void onRegionDidChange(boolean animated) {
         onUpdateViewPort();
-    }
-
-    @Override
-    public void onMarkerPick(MarkerPickResult markerPickResult, float positionX, float positionY) {
-        if(markerPickResult != null) {
-            markerPickResult.getMarker().setVisible(false);
-        }
     }
 }

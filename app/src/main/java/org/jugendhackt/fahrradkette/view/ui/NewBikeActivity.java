@@ -26,8 +26,8 @@ import org.jugendhackt.fahrradkette.R;
 
 public class NewBikeActivity extends AppCompatActivity {
 
-    private double posLat;
-    private double posLon;
+    private double posLat = 100000;
+    private double posLon = 100000;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -85,43 +85,7 @@ public class NewBikeActivity extends AppCompatActivity {
             }
         }
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-/*
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
 
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-*/
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,5 +103,8 @@ public class NewBikeActivity extends AppCompatActivity {
 
         Log.d("Pos", String.valueOf(posLon));
         Log.d("Pos", String.valueOf(posLat));
+
+        TextView textView = (TextView) findViewById(R.id.PosView);
+        textView.setText(String.format( "Sie sind grade bei %f und %f", posLat, posLon ));
     }
 }

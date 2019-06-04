@@ -2,6 +2,8 @@ package org.jugendhackt.fahrradkette.view.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.Intent;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,8 +19,16 @@ import com.mapzen.tangram.MarkerPickResult;
 import com.mapzen.tangram.SceneUpdate;
 import com.mapzen.tangram.TouchInput;
 
+// old
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.R;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
+
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.view.adapter.BikeMapAdapter;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
@@ -52,12 +62,19 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        isLocationPermissionGranted();
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, NewBikeActivity.class);
+                //EditText editText = (EditText) findViewById(R.id.editText);
+                //String message = editText.getText().toString();
+                //intent.putExtra(EXTRA_MESSAGE, message);
+                MainActivity.this.startActivity(intent);
             }
         });
 
@@ -142,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            MainActivity.this.startActivity(intent);
             return true;
         }
 

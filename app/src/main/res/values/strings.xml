@@ -2,4 +2,5 @@
     <string name="app_name">Fahrradkette</string>
     <string name="action_settings">Settings</string>
     <string name="mapzen_api_key">XlQfvN2-Qr6Pov-55cdqvg</string>
+    <string name="credits">bike icon based on font awesome icon under Creative Commons Attribution 4.0 International license https://fontawesome.com/license</string>
 </resources>

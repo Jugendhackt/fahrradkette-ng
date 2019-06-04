@@ -12,7 +12,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapzen.tangram.MapController;
 import com.mapzen.tangram.MapView;
+import com.mapzen.tangram.MarkerPickListener;
+import com.mapzen.tangram.MarkerPickResult;
 import com.mapzen.tangram.SceneUpdate;
+import com.mapzen.tangram.TouchInput;
 
 import org.jugendhackt.fahrradkette.Fahrradkette;
 import org.jugendhackt.fahrradkette.R;
@@ -186,5 +189,18 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
 
         bikeMapAdapter = new BikeMapAdapter(map, mapViewModel);
         map.setMapChangeListener(bikeMapAdapter);
+        map.setMarkerPickListener(bikeMapAdapter);
+        map.getTouchInput().setTapResponder(new TouchInput.TapResponder() {
+            @Override
+            public boolean onSingleTapUp(float x, float y) {
+                return false;
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(float x, float y) {
+                map.pickMarker(x, y);
+                return true;
+            }
+        });
     }
 }

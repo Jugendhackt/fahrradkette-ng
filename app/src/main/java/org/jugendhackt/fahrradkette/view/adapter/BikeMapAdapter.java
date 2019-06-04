@@ -7,8 +7,11 @@ import com.mapzen.tangram.LngLat;
 import com.mapzen.tangram.MapChangeListener;
 import com.mapzen.tangram.MapController;
 import com.mapzen.tangram.Marker;
+import com.mapzen.tangram.MarkerPickListener;
+import com.mapzen.tangram.MarkerPickResult;
 
 import org.jugendhackt.fahrradkette.Fahrradkette;
+import org.jugendhackt.fahrradkette.R;
 import org.jugendhackt.fahrradkette.model.Bike;
 import org.jugendhackt.fahrradkette.viewmodel.MapViewModel;
 
@@ -16,12 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class BikeMapAdapter implements MapChangeListener {
+public class BikeMapAdapter implements MapChangeListener, MarkerPickListener {
 
     private MapViewModel viewModel;
     private MapController map;
     private HashMap<Integer, Marker> bikeCache;
-    String pointStyle = "{ style: 'points', color: 'green', size: [5px, 5px], order: 2000, collide: false }"; //move to values xml
+    String pointStyle = "{ style: 'points', color: 'white', size: [60px, 60px], order: 2000, collide: true , interactive: true }"; //move to values xml
 
     public BikeMapAdapter(MapController map, MapViewModel viewModel) {
         this.map = map;
@@ -37,8 +40,7 @@ public class BikeMapAdapter implements MapChangeListener {
                 Marker bikeMarker = map.addMarker();
                 bikeMarker.setPoint(new LngLat(bike.longitude, bike.latitude));
                 bikeMarker.setStylingFromString(pointStyle);
-                //pointMarker.setDrawable(R.drawable.mapzen_logo);
-
+                Log.d(Fahrradkette.TAG, String.valueOf(bikeMarker.setDrawable(R.drawable.ic_bike)));
                 bikeCache.put(bike.id, bikeMarker);
             }
         }
@@ -77,5 +79,12 @@ public class BikeMapAdapter implements MapChangeListener {
     @Override
     public void onRegionDidChange(boolean animated) {
         onUpdateViewPort();
+    }
+
+    @Override
+    public void onMarkerPick(MarkerPickResult markerPickResult, float positionX, float positionY) {
+        if(markerPickResult != null) {
+            markerPickResult.getMarker().setVisible(false);
+        }
     }
 }

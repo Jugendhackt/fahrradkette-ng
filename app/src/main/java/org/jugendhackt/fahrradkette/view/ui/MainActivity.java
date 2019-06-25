@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
             }
         });
 
-        markerBottomSheet = new MarkerBottomSheet(findViewById(R.id.bottom_sheet_constraint));
+        markerBottomSheet = new MarkerBottomSheet(findViewById(R.id.bottom_sheet_main));
 
         mapView = findViewById(R.id.map);
         mapView.getMapAsync(this);

@@ -38,7 +38,7 @@ public class MarkerBottomSheet implements MarkerPickListener {
     @Override
     public void onMarkerPick(MarkerPickResult markerPickResult, float positionX, float positionY) {
         if(markerPickResult != null) {
-            bottomSheet.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+            bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
             Bike bike = (Bike) markerPickResult.getMarker().getUserData();
             updateView(bike);
         }

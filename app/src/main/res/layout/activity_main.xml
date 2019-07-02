@@ -29,7 +29,7 @@
         app:layout_anchor="@+id/bottom_sheet_main"
         app:layout_anchorGravity="top|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@drawable/ic_add_black_24dp" />
 
     <include layout="@layout/bottom_sheet_marker" />
 

@@ -2,6 +2,8 @@ package org.jugendhackt.fahrradkette.view.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -55,16 +57,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapReadyC
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        markerBottomSheet = new MarkerBottomSheet(findViewById(R.id.bottom_sheet_main), (FloatingActionButton) findViewById(R.id.fab));
 
-        markerBottomSheet = new MarkerBottomSheet(findViewById(R.id.bottom_sheet_main));
 
         mapView = findViewById(R.id.map);
         mapView.getMapAsync(this);
